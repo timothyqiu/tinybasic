@@ -225,13 +225,28 @@ pub const Executor = struct {
                 });
             },
 
-            .call => {
+            .call_1 => {
                 const arg = try self.evaluate(node.data.lhs) orelse unreachable;
                 return switch (self.ast.tokens.get(node.token).tag) {
                     .func_abs => @intCast(@abs(arg)),
                     .func_rnd => self.rng.random().intRangeAtMost(i16, 1, @max(1, arg)),
                     else => unreachable,
                 };
+            },
+
+            .call_2 => {
+                const arg1 = try self.evaluate(node.data.lhs) orelse unreachable;
+                const arg2 = try self.evaluate(node.data.rhs) orelse unreachable;
+                switch (self.ast.tokens.get(node.token).tag) {
+                    .func_mod => {
+                        if (arg2 == 0) {
+                            return self.addError(.{ .tag = .division_by_zero });
+                        }
+                        return @mod(arg1, arg2);
+                    },
+
+                    else => unreachable,
+                }
             },
 
             else => return self.addError(.{

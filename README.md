@@ -6,7 +6,7 @@ Implemented most [grammar](https://archive.org/details/dr_dobbs_journal_vol_01/p
 
 - Added support for lower case characters in string literals.
 - Added `REM` statement for comments.
-- Added functions `ABS(N)` and `RND(N)`.
+- Added functions `ABS(N)`, `RND(N)`, and `MOD(N,D)`.
 
 ## Usage
 

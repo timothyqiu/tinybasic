@@ -63,7 +63,10 @@ pub const Node = struct {
         number,
         /// token = function
         /// lhs = arg1
-        call,
+        call_1,
+        /// token = function
+        /// lhs = arg1, rhs = arg2
+        call_2,
     };
 
     pub const Data = struct {
@@ -434,21 +437,38 @@ pub const Parser = struct {
     }
 
     fn parseCall(self: *Parser) !?NodeIndex {
-        const token = switch (self.token_tags[self.tok_i]) {
+        switch (self.token_tags[self.tok_i]) {
             .func_abs,
             .func_rnd,
-            => self.nextToken(),
+            => {
+                const token = self.nextToken();
+                _ = try self.expectToken(.lparen);
+                const arg1 = try self.expectExpression();
+                _ = try self.expectToken(.rparen);
+                return try self.addNode(.{
+                    .tag = .call_1,
+                    .token = token,
+                    .data = .{ .lhs = arg1, .rhs = undefined },
+                });
+            },
+
+            .func_mod,
+            => {
+                const token = self.nextToken();
+                _ = try self.expectToken(.lparen);
+                const arg1 = try self.expectExpression();
+                _ = try self.expectToken(.comma);
+                const arg2 = try self.expectExpression();
+                _ = try self.expectToken(.rparen);
+                return try self.addNode(.{
+                    .tag = .call_2,
+                    .token = token,
+                    .data = .{ .lhs = arg1, .rhs = arg2 },
+                });
+            },
 
             else => return null,
-        };
-        _ = try self.expectToken(.lparen);
-        const expression = try self.expectExpression();
-        _ = try self.expectToken(.rparen);
-        return try self.addNode(.{
-            .tag = .call,
-            .token = token,
-            .data = .{ .lhs = expression, .rhs = undefined },
-        });
+        }
     }
 
     fn expectPredicate(self: *Parser) !NodeIndex {

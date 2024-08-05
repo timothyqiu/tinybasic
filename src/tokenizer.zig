@@ -38,6 +38,7 @@ pub const Token = struct {
         keyword_end,
         func_abs,
         func_rnd,
+        func_mod,
     };
 
     pub const Location = struct {
@@ -254,6 +255,7 @@ pub const Tokenizer = struct {
         .{ "END", .keyword_end },
         .{ "ABS", .func_abs },
         .{ "RND", .func_rnd },
+        .{ "MOD", .func_mod },
     });
 };
 
