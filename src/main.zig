@@ -11,13 +11,15 @@ pub fn main() !void {
 
     const stdout = std.io.getStdOut().writer();
 
-    if (std.os.argv.len == 1) {
-        try stdout.print("Usage: {s} <file>\n", .{std.os.argv[0]});
+    const argv = try std.process.argsAlloc(allocator);
+    defer std.process.argsFree(allocator, argv);
+    if (argv.len == 1) {
+        try stdout.print("Usage: {s} <file>\n", .{std.fs.path.basename(argv[0])});
         return;
     }
     const source = try std.fs.cwd().readFileAllocOptions(
         allocator,
-        std.mem.sliceTo(std.os.argv[1], 0),
+        argv[1],
         std.math.maxInt(u32),
         null,
         @alignOf(u8),
